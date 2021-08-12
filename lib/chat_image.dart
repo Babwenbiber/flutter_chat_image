@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ChatImage extends StatefulWidget {
   final String url;
@@ -31,11 +32,24 @@ class _ChatImageState extends State<ChatImage> {
   String? errorMsg;
   @override
   void initState() {
-    _loadImage();
+    _initImage();
     super.initState();
   }
 
-  _loadImage() async {
+  Future<void> _initImage() async {
+    _requestPermission().then((_) => _loadImage());
+  }
+
+  Future<void> _requestPermission() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+
+    final info = statuses[Permission.storage].toString();
+    print(info);
+  }
+
+  Future<void> _loadImage() async {
     await _save();
     String? createdFile = await _getPath();
     if (createdFile != null) {
@@ -80,10 +94,14 @@ class _ChatImageState extends State<ChatImage> {
       });
       return;
     }
-    await Dio().download(widget.url, savePath);
-    final result = await ImageGallerySaver.saveFile(savePath);
+    if (!(await File(savePath).exists())) {
+      await Dio().download(widget.url, savePath);
+      final result = await ImageGallerySaver.saveFile(savePath);
 
-    print("saved imaged: $result");
+      print("saved imaged: $result");
+    } else {
+      print("stored image from local storage");
+    }
   }
 
   @override

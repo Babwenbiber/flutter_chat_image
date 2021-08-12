@@ -1,13 +1,11 @@
 import 'package:chat_image/chat_image.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -27,22 +25,10 @@ class FirstPage extends StatefulWidget {
   _FirstPageState createState() => _FirstPageState();
 }
 
+const String url =
+    "https://raw.githubusercontent.com/Babwenbiber/flutter_chat_image/master/res/TA_Logo.jpg";
+
 class _FirstPageState extends State<FirstPage> {
-  @override
-  void initState() {
-    _requestPermission();
-    super.initState();
-  }
-
-  _requestPermission() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
-    ].request();
-
-    final info = statuses[Permission.storage].toString();
-    print(info);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,8 +37,7 @@ class _FirstPageState extends State<FirstPage> {
       ),
       body: Column(children: [
         ChatImage(
-            url:
-                "https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/bloc_logo_full.png",
+            url: url,
             errorBuilder: (BuildContext context, String errorMsg) {
               return Text("some error $errorMsg");
             },
@@ -97,8 +82,7 @@ class _SecondPage extends StatelessWidget {
       body: Column(
         children: [
           ChatImage(
-              url:
-                  "https://raw.githubusercontent.com/felangel/bloc/master/docs/assets/bloc_logo_full.png",
+              url: url,
               loadingBuilder: (BuildContext context) {
                 return Center(
                   child: Container(
