@@ -15,13 +15,15 @@ class ChatImage extends StatefulWidget {
   final Widget Function(BuildContext context)? loadingBuilder;
   final Widget Function(BuildContext context, String errorMsg) errorBuilder;
   final Widget Function(BuildContext context, Image image) imageBuilder;
-
+  //set to false if you don't want to save the image in gallery
+  final bool saveInGallery;
   const ChatImage(
       {Key? key,
       required this.url,
       this.loadingBuilder,
       required this.errorBuilder,
-      required this.imageBuilder})
+      required this.imageBuilder,
+      this.saveInGallery = true})
       : super(key: key);
   @override
   State<StatefulWidget> createState() => _ChatImageState();
@@ -41,12 +43,14 @@ class _ChatImageState extends State<ChatImage> {
   }
 
   Future<void> _requestPermission() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
-    ].request();
+    if (widget.saveInGallery) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.storage,
+      ].request();
 
-    final info = statuses[Permission.storage].toString();
-    print(info);
+      final info = statuses[Permission.storage].toString();
+      print(info);
+    }
   }
 
   Future<void> _loadImage() async {
@@ -96,9 +100,11 @@ class _ChatImageState extends State<ChatImage> {
     }
     if (!(await File(savePath).exists())) {
       await Dio().download(widget.url, savePath);
-      final result = await ImageGallerySaver.saveFile(savePath);
+      if (widget.saveInGallery) {
+        final result = await ImageGallerySaver.saveFile(savePath);
 
-      print("saved imaged: $result");
+        print("saved imaged: $result");
+      }
     } else {
       print("stored image from local storage");
     }
